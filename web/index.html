@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BRDRS — Barangay Requirements & Document Request System</title>
+    <style>
+        :root {
+            --primary: #0f4c3a;
+            --primary-light: #1b6b52;
+            --accent: #d97706;
+            --bg: #f3f5f4;
+            --card: #ffffff;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+        }
+        * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { margin: 0; background: var(--bg); color: var(--text); }
+
+        /* Top Navbar */
+        .navbar {
+            background: var(--primary);
+            color: white;
+            padding: 14px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+        }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand-badge {
+            background: var(--accent);
+            color: white;
+            font-weight: 800;
+            padding: 6px 12px;
+            border-radius: 6px;
+            letter-spacing: 1px;
+            font-size: 18px;
+        }
+        .brand-sub { font-size: 13px; opacity: 0.85; }
+        .user-bar { display: none; align-items: center; gap: 15px; font-size: 14px; }
+        .btn-logout {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .btn-logout:hover { background: rgba(255,255,255,0.25); }
+
+        /* Auth Screen */
+        .auth-wrapper {
+            max-width: 920px;
+            margin: 50px auto;
+            display: grid;
+            grid-template-columns: 1fr 1.1fr;
+            background: var(--card);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+        .auth-banner {
+            background: linear-gradient(145deg, var(--primary), #082e23);
+            color: white;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .auth-banner h1 { font-size: 32px; margin: 0 0 12px; letter-spacing: 1px; }
+        .auth-banner p { opacity: 0.88; line-height: 1.6; font-size: 14px; }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 24px 0 0;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        .feature-list li { margin-bottom: 10px; }
+        .auth-forms { padding: 40px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 24px; border-bottom: 2px solid var(--border); }
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 10px 16px;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+        /* Main App Container */
+        .app-container { max-width: 1120px; margin: 30px auto; padding: 0 20px; display: none; }
+        .grid-2 { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 24px; }
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+        .card h3 { margin-top: 0; color: var(--primary); border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+
+        /* Forms */
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #374151; }
+        input[type="text"], input[type="email"], input[type="password"], input[type="number"], select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        input:focus, select:focus { outline: none; border-color: var(--primary); }
+        .checklist-box {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-left: 4px solid var(--primary);
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+        .bank-box {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-left: 4px solid #2563eb;
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: none;
+        }
+        .btn-primary {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-primary:hover { background: var(--primary-light); }
+        .btn-sm {
+            padding: 6px 10px;
+            font-size: 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-view { background: #e0f2fe; color: #0369a1; }
+        .btn-approve { background: #dcfce7; color: #15803d; }
+
+        /* Receipt & Table */
+        .receipt {
+            border: 2px dashed var(--primary);
+            background: #fffbeb;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+        }
+        .receipt ul {
+            margin: 6px 0 12px 18px;
+            padding: 0;
+            font-size: 13px;
+            color: #1f2937;
+        }
+        .release-badge {
+            background: #dcfce7;
+            border: 1px solid #86efac;
+            color: #14532d;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { padding: 10px; border-bottom: 1px solid var(--border); text-align: left; }
+        th { background: #f9fafb; color: var(--primary); font-weight: 700; }
+        .badge { padding: 4px 8px; border-radius: 99px; font-size: 11px; font-weight: 700; }
+        .badge-pending { background: #fef3c7; color: #b45309; }
+        .badge-approved { background: #dcfce7; color: #15803d; }
+
+        /* Modal for Viewing Uploaded File */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            max-width: 650px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <div class="brand">
+            <div class="brand-badge">BRDRS</div>
+            <div>
+                <div style="font-weight:700;">Barangay Document Request System</div>
+                <div class="brand-sub">Fast, Transparent & Digital Civic Services</div>
+            </div>
+        </div>
+        <div class="user-bar" id="userBar">
+            <span id="welcomeUser"></span>
+            <button class="btn-logout" onclick="logout()">Sign Out</button>
+        </div>
+    </div>
+
+    <!-- SIGN IN / CREATE ACCOUNT VIEW -->
+    <div class="auth-wrapper" id="authView">
+        <div class="auth-banner">
+            <div>
+                <div class="brand-badge" style="display:inline-block; margin-bottom:16px;">BRDRS PORTAL</div>
+                <h1>Welcome to BRDRS</h1>
+                <p>Request Barangay Clearances, Certificate of Indigency, Residency, and Business Permits online without waiting in long queues.</p>
+                <ul class="feature-list">
+                    <li>✔ Selective Requirement Checklist & File Upload</li>
+                    <li>✔ Online Bank / E-Wallet or Walk-in Payment</li>
+                    <li>✔ Official Receipt with Releasing Schedule</li>
+                </ul>
+            </div>
+            <div style="font-size:12px; opacity:0.7;">
+                Official Barangay Digital Governance Portal
+            </div>
+        </div>
+
+        <div class="auth-forms">
+            <div class="tabs">
+                <button class="tab-btn active" id="tabLogin" onclick="switchAuthTab('login')">Sign In</button>
+                <button class="tab-btn" id="tabRegister" onclick="switchAuthTab('register')">Create Account</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="loginEmail" required placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" required placeholder="Enter your password">
+                </div>
+                <button type="submit" class="btn-primary">Sign In to BRDRS</button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="registerForm" style="display:none;">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="regName" required placeholder="e.g., Juan Dela Cruz">
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="regEmail" required placeholder="e.g., juan@email.com">
+                </div>
+                <div class="form-group">
+                    <label>Complete Barangay Address</label>
+                    <input type="text" id="regAddress" required placeholder="e.g., Purok 2, Brgy. Sto. Rosario">
+                </div>
+                <div class="form-group">
+                    <label>Create Password</label>
+                    <input type="password" id="regPassword" required placeholder="Create a password">
+                </div>
+                <button type="submit" class="btn-primary">Create Resident Account</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD VIEW -->
+    <div class="app-container" id="dashboardView">
+        <div class="grid-2" id="residentSection">
+            <!-- Request Form -->
+            <div class="card">
+                <h3>New Document Request</h3>
+                <form id="requestForm">
+                    <div class="form-group">
+                        <label>Applicant Name</label>
+                        <input type="text" id="reqResidentName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" id="reqAddress" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Select Document</label>
+                        <select id="documentType" onchange="updateRequirements()">
+                            <option value="Barangay Clearance" data-fee="50">Barangay Clearance — ₱50.00</option>
+                            <option value="Certificate of Indigency" data-fee="0">Certificate of Indigency — FREE</option>
+                            <option value="Certificate of Residency" data-fee="50">Certificate of Residency — ₱50.00</option>
+                            <option value="Barangay Business Clearance" data-fee="300">Barangay Business Clearance — ₱300.00</option>
+                        </select>
+                    </div>
+
+                    <div class="checklist-box">
+                        <label style="color:var(--primary);">Supporting Documents Checklist (Check only what you have/submit):</label>
+                        <div id="requirementsList"></div>
+                        <small style="color:var(--muted); display:block; margin-top:6px;">*Check at least one (1) valid supporting document you are submitting.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Upload Valid ID / Supporting File (Image or PDF for Verification)</label>
+                        <input type="file" id="requirementFile" accept="image/*,.pdf" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="font-weight:normal;">
+                            <input type="checkbox" id="isSeniorPwd" onchange="calculateTotal()">
+                            Apply Senior Citizen / PWD Discount (20% Off)
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Payment Method</label>
+                        <select id="paymentMethod" onchange="togglePaymentMethod()">
+                            <option value="Pay at Barangay Hall">Pay at Barangay Hall (Cash)</option>
+                            <option value="Online Bank / E-Wallet">Online Bank / E-Wallet Transfer</option>
+                        </select>
+                    </div>
+
+                    <!-- Online Bank Integration Panel -->
+                    <div class="bank-box" id="onlineBankPanel">
+                        <label style="color:#1d4ed8;">Select Connected Bank / E-Wallet App:</label>
+                        <select id="bankProvider" style="margin-bottom:10px;">
+                            <option value="GCash Express">GCash (Brgy Official Merchant: 0917-888-BRGY)</option>
+                            <option value="Maya Pay">Maya (Account: BRDRS Official Treasury)</option>
+                            <option value="BPI Online">BPI Online Transfer (Acct: 1099-4421-08)</option>
+                            <option value="BDO Unibank">BDO Online Banking (Acct: 0045-8812-90)</option>
+                            <option value="LandBank Link.Biz">LandBank Link.BizPortal (GovPay)</option>
+                        </select>
+                        <label style="color:#1d4ed8;">Bank Transaction Reference No.:</label>
+                        <input type="text" id="referenceNo" placeholder="e.g., REF-982374120">
+                        <small style="color:#1e40af; display:block; margin-top:5px;">
+                            *Send exact amount of <strong>₱<span id="bankAmountHint">50.00</span></strong> to the selected account and enter the reference number above.
+                        </small>
+                    </div>
+
+                    <div class="form-group" id="cashInputGroup">
+                        <label>Cash Tendered at Counter (₱):</label>
+                        <input type="number" id="cashTendered" step="0.01" min="0" value="50">
+                    </div>
+
+                    <div style="background:#f9fafb; padding:12px; border-radius:8px; margin-bottom:15px; font-weight:700; font-size:16px;">
+                        Total Amount Due: <span style="color:var(--primary);">₱<span id="displayTotal">50.00</span></span>
+                    </div>
+
+                    <button type="submit" class="btn-primary">Submit Request & Generate Receipt</button>
+                </form>
+            </div>
+
+            <!-- Live Receipt & Info -->
+            <div>
+                <div class="card receipt" id="receiptBox"></div>
+                <div class="card">
+                    <h3>How BRDRS Verification Works</h3>
+                    <p style="font-size:13px; color:var(--muted); line-height:1.6;">
+                        1. Select your requested Barangay document and check only the supporting documents you are submitting.<br>
+                        2. Upload a clear photo or PDF of your Valid ID/document.<br>
+                        3. Choose between <strong>Online Bank/E-Wallet</strong> or <strong>Walk-in Cash Payment</strong>.<br>
+                        4. Present your Official Receipt on the indicated <strong>Date of Releasing</strong> to claim your certificate.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Records & Admin File Viewer Table -->
+        <div class="card">
+            <h3 id="tableTitle">My Document Requests</h3>
+            <div style="overflow-x:auto;">
+                <table id="logsTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Resident</th>
+                            <th>Document & Submitted Docs</th>
+                            <th>Payment</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Attached File / Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- FILE VIEWER MODAL -->
+    <div class="modal" id="fileModal">
+        <div class="modal-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="margin:0; border:none;" id="modalFileName">Uploaded Requirement File</h3>
+                <button class="btn-sm" onclick="closeModal()" style="background:#fee2e2; color:#b91c1c;">Close</button>
+            </div>
+            <div id="filePreviewContainer" style="text-align:center;"></div>
+        </div>
+    </div>
+
+<script>
+    let currentUser = null;
+
+    const requirementsData = {
+        "Barangay Clearance": ["Valid Government ID", "Community Tax Certificate (Cedula)", "Proof of Residency"],
+        "Certificate of Indigency": ["Valid Government ID", "Proof of Residency", "Purok Leader Endorsement"],
+        "Certificate of Residency": ["Valid Government ID", "Utility Bill or Lease Contract"],
+        "Barangay Business Clearance": ["Valid Government ID", "Cedula", "DTI / SEC Registration", "Lease Contract / Land Title"]
+    };
+
+    function switchAuthTab(tab) {
+        document.getElementById("loginForm").style.display = tab === "login" ? "block" : "none";
+        document.getElementById("registerForm").style.display = tab === "register" ? "block" : "none";
+        document.getElementById("tabLogin").classList.toggle("active", tab === "login");
+        document.getElementById("tabRegister").classList.toggle("active", tab === "register");
+    }
+
+    // Create Account
+    document.getElementById("registerForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const payload = new URLSearchParams({
+            fullName: document.getElementById("regName").value,
+            email: document.getElementById("regEmail").value,
+            address: document.getElementById("regAddress").value,
+            password: document.getElementById("regPassword").value
+        });
+        const res = await fetch("/api/register", { method: "POST", body: payload });
+        const data = await res.json();
+        alert(data.message);
+        if (data.status === "success") switchAuthTab("login");
+    });
+
+    // Sign In
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const payload = new URLSearchParams({
+            email: document.getElementById("loginEmail").value,
+            password: document.getElementById("loginPassword").value
+        });
+        const res = await fetch("/api/login", { method: "POST", body: payload });
+        const data = await res.json();
+        if (data.status === "success") {
+            currentUser = data.user;
+            enterDashboard();
+        } else {
+            alert(data.message);
+        }
+    });
+
+    function enterDashboard() {
+        document.getElementById("authView").style.display = "none";
+        document.getElementById("dashboardView").style.display = "block";
+        document.getElementById("userBar").style.display = "flex";
+        document.getElementById("welcomeUser").innerHTML = `<strong>${currentUser.fullName}</strong> (${currentUser.role.toUpperCase()})`;
+
+        document.getElementById("reqResidentName").value = currentUser.fullName;
+        document.getElementById("reqAddress").value = currentUser.address;
+
+        if (currentUser.role === "admin") {
+            document.getElementById("tableTitle").innerText = "Admin Master Records — All Resident Requests & File Verification";
+        } else {
+            document.getElementById("tableTitle").innerText = "My Request History & Receipts";
+        }
+
+        updateRequirements();
+        loadLogs();
+    }
+
+    function logout() {
+        currentUser = null;
+        document.getElementById("authView").style.display = "grid";
+        document.getElementById("dashboardView").style.display = "none";
+        document.getElementById("userBar").style.display = "none";
+    }
+
+    function updateRequirements() {
+        const docType = document.getElementById("documentType").value;
+        const listDiv = document.getElementById("requirementsList");
+        listDiv.innerHTML = "";
+        requirementsData[docType].forEach(req => {
+            listDiv.innerHTML += `<label style="font-weight:normal; margin:5px 0;">
+                <input type="checkbox" class="req-checkbox" value="${req}"> ${req}
+            </label>`;
+        });
+        calculateTotal();
+    }
+
+    function calculateTotal() {
+        const docSelect = document.getElementById("documentType");
+        let fee = parseFloat(docSelect.options[docSelect.selectedIndex].getAttribute("data-fee"));
+        if (document.getElementById("isSeniorPwd").checked && fee > 0) fee *= 0.80;
+
+        document.getElementById("displayTotal").innerText = fee.toFixed(2);
+        document.getElementById("bankAmountHint").innerText = fee.toFixed(2);
+        document.getElementById("cashTendered").value = fee.toFixed(2);
+    }
+
+    function togglePaymentMethod() {
+        const method = document.getElementById("paymentMethod").value;
+        const isOnline = method === "Online Bank / E-Wallet";
+        document.getElementById("onlineBankPanel").style.display = isOnline ? "block" : "none";
+        document.getElementById("cashInputGroup").style.display = isOnline ? "none" : "block";
+        document.getElementById("referenceNo").required = isOnline;
+    }
+
+    function readFileAsBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Calculate Releasing Date (Next working day, skipping Sunday)
+    function getReleaseDateFormatted() {
+        const now = new Date();
+        const releaseDate = new Date(now);
+        releaseDate.setDate(now.getDate() + 1);
+        if (releaseDate.getDay() === 0) {
+            releaseDate.setDate(releaseDate.getDate() + 1); // Move Monday if Sunday
+        }
+        return releaseDate.toLocaleDateString("en-PH", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric"
+        });
+    }
+
+    document.getElementById("requestForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        // Kunin lang ang mga dokumentong naka-check
+        const checkedBoxes = Array.from(document.querySelectorAll(".req-checkbox:checked"));
+        if (checkedBoxes.length === 0) {
+            alert("Please check at least one (1) supporting document you are submitting.");
+            return;
+        }
+        const selectedDocs = checkedBoxes.map(cb => cb.value);
+        const selectedDocsText = selectedDocs.join(", ");
+
+        const docSelect = document.getElementById("documentType");
+        const baseFee = parseFloat(docSelect.options[docSelect.selectedIndex].getAttribute("data-fee"));
+        const totalFee = parseFloat(document.getElementById("displayTotal").innerText);
+        const paymentMethod = document.getElementById("paymentMethod").value;
+        const isOnline = paymentMethod === "Online Bank / E-Wallet";
+        const cash = isOnline ? totalFee : parseFloat(document.getElementById("cashTendered").value);
+
+        if (!isOnline && cash < totalFee) {
+            alert("Insufficient cash tendered!");
+            return;
+        }
+
+        const fileInput = document.getElementById("requirementFile");
+        const file = fileInput.files[0];
+        const fileBase64 = file ? await readFileAsBase64(file) : "";
+
+        const dateIssued = new Date().toLocaleDateString("en-PH", { year: "numeric", month: "long", day: "numeric" });
+        const releaseDate = getReleaseDateFormatted();
+
+        const payload = new URLSearchParams({
+            userId: currentUser.userId,
+            residentName: document.getElementById("reqResidentName").value,
+            address: document.getElementById("reqAddress").value,
+            documentType: docSelect.value,
+            requirementsChecked: selectedDocsText,
+            uploadedFileName: file ? file.name : "No file",
+            uploadedFileData: fileBase64,
+            isSeniorPwd: document.getElementById("isSeniorPwd").checked,
+            baseFee: baseFee,
+            totalFee: totalFee,
+            paymentMethod: paymentMethod,
+            bankProvider: isOnline ? document.getElementById("bankProvider").value : "Barangay Cashier",
+            referenceNo: isOnline ? document.getElementById("referenceNo").value : "CASH-COUNTER",
+            cashTendered: cash
+        });
+
+        const res = await fetch("/api/submit", { method: "POST", body: payload });
+        const result = await res.json();
+
+        if (result.status === "success") {
+            const receipt = document.getElementById("receiptBox");
+            const docsHtml = selectedDocs.map(d => `<li>✔ ${d}</li>`).join("");
+
+            receipt.style.display = "block";
+            receipt.innerHTML = `
+                <h3 style="margin-top:0; color:var(--primary);">BRDRS OFFICIAL RECEIPT #${result.id}</h3>
+                <p style="margin:6px 0;"><strong>Date Requested:</strong> ${dateIssued}</p>
+                <p style="margin:6px 0;"><strong>Applicant:</strong> ${result.residentName}</p>
+                <p style="margin:6px 0;"><strong>Requested Document:</strong> ${result.documentType}</p>
+                <div style="margin:8px 0;">
+                    <strong>Verified Requirements Checked:</strong>
+                    <ul>${docsHtml}</ul>
+                </div>
+                <p style="margin:6px 0;"><strong>Payment Method:</strong> ${result.paymentMethod} (${result.bankProvider})</p>
+                <p style="margin:6px 0;"><strong>Reference No.:</strong> ${result.referenceNo}</p>
+                <p style="margin:6px 0;"><strong>Total Paid:</strong> ₱${result.totalFee} | <strong>Change:</strong> ₱${result.change}</p>
+                <div class="release-badge">
+                    📅 <strong>Date of Releasing:</strong> ${releaseDate}<br>
+                    <small>Please present Receipt #${result.id} and your original ID at the Barangay Hall on or after this date.</small>
+                </div>
+            `;
+            loadLogs();
+        } else {
+            alert("Error: " + result.message);
+        }
+    });
+
+    async function loadLogs() {
+        const res = await fetch(`/api/logs?userId=${currentUser.userId}&role=${currentUser.role}`);
+        const logs = await res.json();
+        const tbody = document.querySelector("#logsTable tbody");
+        tbody.innerHTML = "";
+
+        logs.forEach(row => {
+            const statusClass = row.status === "Approved" ? "badge-approved" : "badge-pending";
+            const approveBtn = (currentUser.role === "admin" && row.status !== "Approved")
+                ? `<button class="btn-sm btn-approve" onclick="approveRequest(${row.id})">Approve</button>`
+                : "";
+
+            tbody.innerHTML += `<tr>
+                <td>#${row.id}</td>
+                <td><strong>${row.name}</strong><br><small>${row.date}</small></td>
+                <td><strong>${row.doc}</strong><br><small style="color:#0f4c3a;">Checked: ${row.checkedDocs}</small></td>
+                <td>${row.paymentMethod}<br><small>${row.bankProvider} (${row.referenceNo})</small></td>
+                <td>₱${row.total}</td>
+                <td><span class="badge ${statusClass}">${row.status}</span></td>
+                <td>
+                    <button class="btn-sm btn-view" onclick="viewFile(${row.id})">View File</button>
+                    ${approveBtn}
+                </td>
+            </tr>`;
+        });
+    }
+
+    async function viewFile(requestId) {
+        const res = await fetch(`/api/file?id=${requestId}`);
+        const data = await res.json();
+        document.getElementById("modalFileName").innerText = "Attached File: " + data.fileName;
+        const container = document.getElementById("filePreviewContainer");
+
+        if (data.fileData && data.fileData.startsWith("data:image")) {
+            container.innerHTML = `<img src="${data.fileData}" style="max-width:100%; border-radius:8px; border:1px solid #ddd;">`;
+        } else if (data.fileData && data.fileData.startsWith("data:application/pdf")) {
+            container.innerHTML = `<iframe src="${data.fileData}" width="100%" height="450px"></iframe>`;
+        } else {
+            container.innerHTML = `<p>No previewable file attached for this record.</p>`;
+        }
+        document.getElementById("fileModal").style.display = "flex";
+    }
+
+    function closeModal() {
+        document.getElementById("fileModal").style.display = "none";
+    }
+
+    async function approveRequest(id) {
+        await fetch("/api/approve", {
+            method: "POST",
+            body: new URLSearchParams({ id: id })
+        });
+        loadLogs();
+    }
+</script>
+</body>
+</html>
