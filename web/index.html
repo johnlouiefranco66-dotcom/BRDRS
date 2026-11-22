@@ -22,13 +22,14 @@
         .navbar {
             background: var(--primary);
             color: white;
-            padding: 14px 32px;
+            padding: 14px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.12);
         }
-        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
         .brand-badge {
             background: var(--accent);
             color: white;
@@ -37,9 +38,11 @@
             border-radius: 6px;
             letter-spacing: 1px;
             font-size: 18px;
+            flex-shrink: 0;
         }
-        .brand-sub { font-size: 13px; opacity: 0.85; }
-        .user-bar { display: none; align-items: center; gap: 15px; font-size: 14px; }
+        .brand-title { font-weight: 700; line-height: 1.25; }
+        .brand-sub { font-size: 13px; opacity: 0.85; line-height: 1.3; }
+        .user-bar { display: none; align-items: center; gap: 12px; font-size: 14px; flex-wrap: wrap; justify-content: flex-end; }
         .btn-logout {
             background: rgba(255,255,255,0.15);
             color: white;
@@ -47,13 +50,14 @@
             padding: 6px 14px;
             border-radius: 6px;
             cursor: pointer;
+            white-space: nowrap;
         }
         .btn-logout:hover { background: rgba(255,255,255,0.25); }
 
         /* Auth Screen */
         .auth-wrapper {
             max-width: 920px;
-            margin: 50px auto;
+            margin: 40px auto;
             display: grid;
             grid-template-columns: 1fr 1.1fr;
             background: var(--card);
@@ -64,22 +68,22 @@
         .auth-banner {
             background: linear-gradient(145deg, var(--primary), #082e23);
             color: white;
-            padding: 40px;
+            padding: 36px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
-        .auth-banner h1 { font-size: 32px; margin: 0 0 12px; letter-spacing: 1px; }
+        .auth-banner h1 { font-size: 30px; margin: 0 0 12px; letter-spacing: 1px; }
         .auth-banner p { opacity: 0.88; line-height: 1.6; font-size: 14px; }
         .feature-list {
             list-style: none;
             padding: 0;
-            margin: 24px 0 0;
+            margin: 22px 0 0;
             font-size: 13px;
             opacity: 0.9;
         }
         .feature-list li { margin-bottom: 10px; }
-        .auth-forms { padding: 40px; }
+        .auth-forms { padding: 36px; }
         .tabs { display: flex; gap: 10px; margin-bottom: 24px; border-bottom: 2px solid var(--border); }
         .tab-btn {
             background: none;
@@ -94,29 +98,42 @@
         .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
 
         /* Main App Container */
-        .app-container { max-width: 1120px; margin: 30px auto; padding: 0 20px; display: none; }
-        .grid-2 { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 24px; }
+        .app-container { max-width: 1120px; margin: 28px auto; padding: 0 16px; display: none; }
+        .grid-2 { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 24px; align-items: start; }
         .card {
             background: var(--card);
             border-radius: 12px;
-            padding: 24px;
+            padding: 22px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             border: 1px solid var(--border);
             margin-bottom: 24px;
         }
         .card h3 { margin-top: 0; color: var(--primary); border-bottom: 1px solid var(--border); padding-bottom: 12px; }
 
-        /* Forms */
+        /* Forms & Dynamic Document Fields */
         .form-group { margin-bottom: 15px; }
         label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #374151; }
-        input[type="text"], input[type="email"], input[type="password"], input[type="number"], select {
+        .inline-check { display: flex; align-items: flex-start; gap: 8px; font-weight: normal; margin: 7px 0; cursor: pointer; }
+        .inline-check input[type="checkbox"] { width: auto; margin-top: 2px; flex-shrink: 0; }
+        input[type="text"], input[type="email"], input[type="password"], input[type="number"], select, textarea {
             width: 100%;
             padding: 10px 12px;
             border: 1px solid #d1d5db;
             border-radius: 8px;
             font-size: 14px;
+            background: #fff;
         }
-        input:focus, select:focus { outline: none; border-color: var(--primary); }
+        textarea { min-height: 72px; resize: vertical; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); }
+
+        .doc-details-box {
+            background: #fffdf7;
+            border: 1px solid #fde68a;
+            border-left: 4px solid var(--accent);
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
         .checklist-box {
             background: #f0fdf4;
             border: 1px solid #bbf7d0;
@@ -139,7 +156,7 @@
             background: var(--primary);
             color: white;
             border: none;
-            padding: 12px;
+            padding: 12px 14px;
             border-radius: 8px;
             font-size: 15px;
             font-weight: 600;
@@ -153,6 +170,7 @@
             border: none;
             cursor: pointer;
             font-weight: 600;
+            margin-bottom: 4px;
         }
         .btn-view { background: #e0f2fe; color: #0369a1; }
         .btn-approve { background: #dcfce7; color: #15803d; }
@@ -180,10 +198,11 @@
             font-size: 13px;
             margin-top: 10px;
         }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        th, td { padding: 10px; border-bottom: 1px solid var(--border); text-align: left; }
+        .table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 680px; }
+        th, td { padding: 10px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
         th { background: #f9fafb; color: var(--primary); font-weight: 700; }
-        .badge { padding: 4px 8px; border-radius: 99px; font-size: 11px; font-weight: 700; }
+        .badge { padding: 4px 8px; border-radius: 99px; font-size: 11px; font-weight: 700; white-space: nowrap; }
         .badge-pending { background: #fef3c7; color: #b45309; }
         .badge-approved { background: #dcfce7; color: #15803d; }
 
@@ -196,15 +215,54 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            padding: 16px;
         }
         .modal-content {
             background: white;
-            padding: 24px;
+            padding: 20px;
             border-radius: 12px;
             max-width: 650px;
-            width: 90%;
+            width: 100%;
             max-height: 85vh;
             overflow-y: auto;
+        }
+
+        /* Responsive Breakpoints: Tablet & Mobile */
+        @media (max-width: 900px) {
+            .auth-wrapper {
+                grid-template-columns: 1fr;
+                margin: 20px 14px;
+            }
+            .auth-banner, .auth-forms {
+                padding: 24px;
+            }
+            .grid-2 {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .navbar {
+                padding: 12px 14px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .user-bar {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .brand-badge {
+                font-size: 15px;
+                padding: 5px 10px;
+            }
+            .brand-title { font-size: 15px; }
+            .brand-sub { font-size: 12px; }
+            .auth-banner h1 { font-size: 24px; }
+            .card { padding: 16px; margin-bottom: 16px; border-radius: 10px; }
+            input[type="text"], input[type="email"], input[type="password"], input[type="number"], select, textarea {
+                font-size: 16px; /* Prevents mobile auto-zoom on focus */
+            }
         }
     </style>
 </head>
@@ -215,7 +273,7 @@
         <div class="brand">
             <div class="brand-badge">BRDRS</div>
             <div>
-                <div style="font-weight:700;">Barangay Document Request System</div>
+                <div class="brand-title">Barangay Document Request System</div>
                 <div class="brand-sub">Fast, Transparent & Digital Civic Services</div>
             </div>
         </div>
@@ -233,9 +291,9 @@
                 <h1>Welcome to BRDRS</h1>
                 <p>Request Barangay Clearances, Certificate of Indigency, Residency, and Business Permits online without waiting in long queues.</p>
                 <ul class="feature-list">
+                    <li>✔ Dynamic Fields per Requested Document</li>
                     <li>✔ Selective Requirement Checklist & File Upload</li>
-                    <li>✔ Online Bank / E-Wallet or Walk-in Payment</li>
-                    <li>✔ Official Receipt with Releasing Schedule</li>
+                    <li>✔ Mobile & PC Friendly + Official Receipt</li>
                 </ul>
             </div>
             <div style="font-size:12px; opacity:0.7;">
@@ -302,12 +360,18 @@
                     </div>
                     <div class="form-group">
                         <label>Select Document</label>
-                        <select id="documentType" onchange="updateRequirements()">
+                        <select id="documentType" onchange="updateDocumentFields()">
                             <option value="Barangay Clearance" data-fee="50">Barangay Clearance — ₱50.00</option>
                             <option value="Certificate of Indigency" data-fee="0">Certificate of Indigency — FREE</option>
                             <option value="Certificate of Residency" data-fee="50">Certificate of Residency — ₱50.00</option>
                             <option value="Barangay Business Clearance" data-fee="300">Barangay Business Clearance — ₱300.00</option>
                         </select>
+                    </div>
+
+                    <!-- Dynamic Fields Specific to Selected Document -->
+                    <div class="doc-details-box">
+                        <label id="dynamicFieldsTitle" style="color:#92400e;">Required Details for Requested Document:</label>
+                        <div id="dynamicFieldsContainer"></div>
                     </div>
 
                     <div class="checklist-box">
@@ -322,9 +386,9 @@
                     </div>
 
                     <div class="form-group">
-                        <label style="font-weight:normal;">
+                        <label class="inline-check">
                             <input type="checkbox" id="isSeniorPwd" onchange="calculateTotal()">
-                            Apply Senior Citizen / PWD Discount (20% Off)
+                            <span>Apply Senior Citizen / PWD Discount (20% Off)</span>
                         </label>
                     </div>
 
@@ -372,8 +436,8 @@
                 <div class="card">
                     <h3>How BRDRS Verification Works</h3>
                     <p style="font-size:13px; color:var(--muted); line-height:1.6;">
-                        1. Select your requested Barangay document and check only the supporting documents you are submitting.<br>
-                        2. Upload a clear photo or PDF of your Valid ID/document.<br>
+                        1. Select your requested Barangay document and fill out the specific details required for that certificate.<br>
+                        2. Check only the supporting documents you are submitting and upload a clear photo or PDF.<br>
                         3. Choose between <strong>Online Bank/E-Wallet</strong> or <strong>Walk-in Cash Payment</strong>.<br>
                         4. Present your Official Receipt on the indicated <strong>Date of Releasing</strong> to claim your certificate.
                     </p>
@@ -384,13 +448,13 @@
         <!-- Records & Admin File Viewer Table -->
         <div class="card">
             <h3 id="tableTitle">My Document Requests</h3>
-            <div style="overflow-x:auto;">
+            <div class="table-wrap">
                 <table id="logsTable">
                     <thead>
                         <tr>
                             <th>ID</th>
                             <th>Resident</th>
-                            <th>Document & Submitted Docs</th>
+                            <th>Document, Details & Docs</th>
                             <th>Payment</th>
                             <th>Total</th>
                             <th>Status</th>
@@ -406,7 +470,7 @@
     <!-- FILE VIEWER MODAL -->
     <div class="modal" id="fileModal">
         <div class="modal-content">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:15px;">
                 <h3 style="margin:0; border:none;" id="modalFileName">Uploaded Requirement File</h3>
                 <button class="btn-sm" onclick="closeModal()" style="background:#fee2e2; color:#b91c1c;">Close</button>
             </div>
@@ -422,6 +486,26 @@
         "Certificate of Indigency": ["Valid Government ID", "Proof of Residency", "Purok Leader Endorsement"],
         "Certificate of Residency": ["Valid Government ID", "Utility Bill or Lease Contract"],
         "Barangay Business Clearance": ["Valid Government ID", "Cedula", "DTI / SEC Registration", "Lease Contract / Land Title"]
+    };
+
+    const documentFieldsConfig = {
+        "Barangay Clearance": [
+            { id: "dynPurpose", label: "Purpose of Clearance", type: "text", placeholder: "e.g., Local Employment, Travel, Bank Requirement", required: true },
+            { id: "dynCedulaNo", label: "Community Tax Certificate (Cedula) No.", type: "text", placeholder: "e.g., CTC-12345678", required: true }
+        ],
+        "Certificate of Indigency": [
+            { id: "dynIndigencyReason", label: "Reason / Assistance Needed", type: "text", placeholder: "e.g., Medical Assistance, Scholarship, Financial Aid", required: true },
+            { id: "dynMonthlyIncome", label: "Estimated Monthly Household Income (₱)", type: "number", placeholder: "e.g., 8000", required: true }
+        ],
+        "Certificate of Residency": [
+            { id: "dynYearsResiding", label: "Years of Continuous Residency", type: "number", placeholder: "e.g., 5", required: true },
+            { id: "dynPurokSitio", label: "Specific Purok / Sitio / Street", type: "text", placeholder: "e.g., Purok 3, Sampaguita St.", required: true }
+        ],
+        "Barangay Business Clearance": [
+            { id: "dynBusinessName", label: "Business / Trade Name", type: "text", placeholder: "e.g., Aling Nena Sari-Sari Store", required: true },
+            { id: "dynBusinessNature", label: "Nature / Type of Business", type: "text", placeholder: "e.g., Retail / Sari-Sari Store, Food Stall", required: true },
+            { id: "dynBusinessAddress", label: "Business Location / Address", type: "text", placeholder: "e.g., Lot 4 Block 2, Main Road", required: true }
+        ]
     };
 
     function switchAuthTab(tab) {
@@ -478,7 +562,7 @@
             document.getElementById("tableTitle").innerText = "My Request History & Receipts";
         }
 
-        updateRequirements();
+        updateDocumentFields();
         loadLogs();
     }
 
@@ -489,16 +573,49 @@
         document.getElementById("userBar").style.display = "none";
     }
 
-    function updateRequirements() {
+    function updateDocumentFields() {
         const docType = document.getElementById("documentType").value;
+
+        document.getElementById("dynamicFieldsTitle").innerText = `Required Details for ${docType}:`;
+        const dynContainer = document.getElementById("dynamicFieldsContainer");
+        dynContainer.innerHTML = "";
+
+        (documentFieldsConfig[docType] || []).forEach(field => {
+            const minAttr = field.type === "number" ? 'min="0" step="any"' : "";
+            const reqAttr = field.required ? "required" : "";
+            dynContainer.innerHTML += `
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label for="${field.id}">${field.label}</label>
+                    <input type="${field.type}" id="${field.id}" placeholder="${field.placeholder}" ${minAttr} ${reqAttr}>
+                </div>
+            `;
+        });
+
         const listDiv = document.getElementById("requirementsList");
         listDiv.innerHTML = "";
         requirementsData[docType].forEach(req => {
-            listDiv.innerHTML += `<label style="font-weight:normal; margin:5px 0;">
-                <input type="checkbox" class="req-checkbox" value="${req}"> ${req}
-            </label>`;
+            listDiv.innerHTML += `
+                <label class="inline-check">
+                    <input type="checkbox" class="req-checkbox" value="${req}">
+                    <span>${req}</span>
+                </label>
+            `;
         });
+
         calculateTotal();
+    }
+
+    function collectDocumentDetails(docType) {
+        const fields = documentFieldsConfig[docType] || [];
+        return fields.map(field => {
+            const el = document.getElementById(field.id);
+            const rawVal = el ? el.value.trim() : "";
+            const formattedVal = field.id === "dynMonthlyIncome" && rawVal ? `₱${rawVal}` : rawVal;
+            return {
+                label: field.label,
+                value: formattedVal || "N/A"
+            };
+        });
     }
 
     function calculateTotal() {
@@ -528,13 +645,12 @@
         });
     }
 
-    // Calculate Releasing Date (Next working day, skipping Sunday)
     function getReleaseDateFormatted() {
         const now = new Date();
         const releaseDate = new Date(now);
         releaseDate.setDate(now.getDate() + 1);
         if (releaseDate.getDay() === 0) {
-            releaseDate.setDate(releaseDate.getDate() + 1); // Move Monday if Sunday
+            releaseDate.setDate(releaseDate.getDate() + 1);
         }
         return releaseDate.toLocaleDateString("en-PH", {
             weekday: "long",
@@ -547,16 +663,19 @@
     document.getElementById("requestForm").addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        // Kunin lang ang mga dokumentong naka-check
         const checkedBoxes = Array.from(document.querySelectorAll(".req-checkbox:checked"));
         if (checkedBoxes.length === 0) {
             alert("Please check at least one (1) supporting document you are submitting.");
             return;
         }
         const selectedDocs = checkedBoxes.map(cb => cb.value);
-        const selectedDocsText = selectedDocs.join(", ");
 
         const docSelect = document.getElementById("documentType");
+        const docType = docSelect.value;
+        const filledDetails = collectDocumentDetails(docType);
+        const filledDetailsText = filledDetails.map(item => `${item.label}: ${item.value}`).join(" | ");
+        const selectedDocsText = `${filledDetailsText} — Docs: ${selectedDocs.join(", ")}`;
+
         const baseFee = parseFloat(docSelect.options[docSelect.selectedIndex].getAttribute("data-fee"));
         const totalFee = parseFloat(document.getElementById("displayTotal").innerText);
         const paymentMethod = document.getElementById("paymentMethod").value;
@@ -579,7 +698,7 @@
             userId: currentUser.userId,
             residentName: document.getElementById("reqResidentName").value,
             address: document.getElementById("reqAddress").value,
-            documentType: docSelect.value,
+            documentType: docType,
             requirementsChecked: selectedDocsText,
             uploadedFileName: file ? file.name : "No file",
             uploadedFileData: fileBase64,
@@ -589,7 +708,14 @@
             paymentMethod: paymentMethod,
             bankProvider: isOnline ? document.getElementById("bankProvider").value : "Barangay Cashier",
             referenceNo: isOnline ? document.getElementById("referenceNo").value : "CASH-COUNTER",
-            cashTendered: cash
+            cashTendered: cash,
+            cedulaNo: document.getElementById("dynCedulaNo")?.value || "",
+            monthlyIncome: document.getElementById("dynMonthlyIncome")?.value || "",
+            yearsResiding: document.getElementById("dynYearsResiding")?.value || "",
+            purokSitio: document.getElementById("dynPurokSitio")?.value || "",
+            businessName: document.getElementById("dynBusinessName")?.value || "",
+            businessNature: document.getElementById("dynBusinessNature")?.value || "",
+            businessAddress: document.getElementById("dynBusinessAddress")?.value || ""
         });
 
         const res = await fetch("/api/submit", { method: "POST", body: payload });
@@ -597,6 +723,7 @@
 
         if (result.status === "success") {
             const receipt = document.getElementById("receiptBox");
+            const detailsHtml = filledDetails.map(d => `<li><strong>${d.label}:</strong> ${d.value}</li>`).join("");
             const docsHtml = selectedDocs.map(d => `<li>✔ ${d}</li>`).join("");
 
             receipt.style.display = "block";
@@ -605,6 +732,10 @@
                 <p style="margin:6px 0;"><strong>Date Requested:</strong> ${dateIssued}</p>
                 <p style="margin:6px 0;"><strong>Applicant:</strong> ${result.residentName}</p>
                 <p style="margin:6px 0;"><strong>Requested Document:</strong> ${result.documentType}</p>
+                <div style="margin:8px 0;">
+                    <strong>Submitted Document Details:</strong>
+                    <ul>${detailsHtml}</ul>
+                </div>
                 <div style="margin:8px 0;">
                     <strong>Verified Requirements Checked:</strong>
                     <ul>${docsHtml}</ul>
@@ -638,7 +769,7 @@
             tbody.innerHTML += `<tr>
                 <td>#${row.id}</td>
                 <td><strong>${row.name}</strong><br><small>${row.date}</small></td>
-                <td><strong>${row.doc}</strong><br><small style="color:#0f4c3a;">Checked: ${row.checkedDocs}</small></td>
+                <td><strong>${row.doc}</strong><br><small style="color:#0f4c3a;">${row.checkedDocs}</small></td>
                 <td>${row.paymentMethod}<br><small>${row.bankProvider} (${row.referenceNo})</small></td>
                 <td>₱${row.total}</td>
                 <td><span class="badge ${statusClass}">${row.status}</span></td>
