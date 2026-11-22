@@ -1,6 +1,7 @@
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpExchange;
 import java.io.*;
+import java.math.BigDecimal;
 import java.net.InetSocketAddress;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -79,7 +80,7 @@ public class BarangayServer {
                     escapeJson(rs.getString("full_name")),
                     escapeJson(rs.getString("email")),
                     escapeJson(rs.getString("address")),
-                    rs.getString("role")
+                    escapeJson(rs.getString("role"))
                 );
                 sendJson(exchange, json);
             } else {
@@ -108,10 +109,24 @@ public class BarangayServer {
         String referenceNo = params.get("referenceNo");
         double cashTendered = Double.parseDouble(params.get("cashTendered"));
 
+        String cedulaNo = emptyToNull(params.get("cedulaNo"));
+        BigDecimal monthlyIncome = parseDecimalOrNull(params.get("monthlyIncome"));
+        Integer yearsResiding = parseIntOrNull(params.get("yearsResiding"));
+        String purokSitio = emptyToNull(params.get("purokSitio"));
+        String businessName = emptyToNull(params.get("businessName"));
+        String businessNature = emptyToNull(params.get("businessNature"));
+        String businessAddress = emptyToNull(params.get("businessAddress"));
+
         double discount = baseFee - totalFee;
         double change = cashTendered - totalFee;
 
-        String sql = "INSERT INTO document_requests (user_id, resident_name, address, document_type, requirements_checked, uploaded_file_name, uploaded_file_data, is_senior_pwd, base_fee, discount, total_fee, payment_method, bank_provider, reference_no, cash_tendered, change_amount) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO document_requests (" +
+            "user_id, resident_name, address, document_type, requirements_checked, " +
+            "uploaded_file_name, uploaded_file_data, is_senior_pwd, base_fee, discount, " +
+            "total_fee, payment_method, bank_provider, reference_no, cash_tendered, change_amount, " +
+            "cedula_no, monthly_income, years_residing, purok_sitio, " +
+            "business_name, business_nature, business_address" +
+            ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -132,6 +147,23 @@ public class BarangayServer {
             stmt.setString(14, referenceNo);
             stmt.setDouble(15, cashTendered);
             stmt.setDouble(16, change);
+
+            stmt.setString(17, cedulaNo);
+            if (monthlyIncome != null) {
+                stmt.setBigDecimal(18, monthlyIncome);
+            } else {
+                stmt.setNull(18, Types.DECIMAL);
+            }
+            if (yearsResiding != null) {
+                stmt.setInt(19, yearsResiding);
+            } else {
+                stmt.setNull(19, Types.INTEGER);
+            }
+            stmt.setString(20, purokSitio);
+            stmt.setString(21, businessName);
+            stmt.setString(22, businessNature);
+            stmt.setString(23, businessAddress);
+
             stmt.executeUpdate();
 
             ResultSet rs = stmt.getGeneratedKeys();
@@ -154,8 +186,8 @@ public class BarangayServer {
         int userId = Integer.parseInt(query.getOrDefault("userId", "0"));
 
         String sql = "admin".equals(role)
-            ? "SELECT request_id, resident_name, document_type, requirements_checked, payment_method, bank_provider, reference_no, total_fee, status, request_date FROM document_requests ORDER BY request_id DESC"
-            : "SELECT request_id, resident_name, document_type, requirements_checked, payment_method, bank_provider, reference_no, total_fee, status, request_date FROM document_requests WHERE user_id = ? ORDER BY request_id DESC";
+            ? "SELECT request_id, resident_name, document_type, requirements_checked, payment_method, bank_provider, reference_no, total_fee, status, request_date, cedula_no, monthly_income, years_residing, purok_sitio, business_name, business_nature, business_address FROM document_requests ORDER BY request_id DESC"
+            : "SELECT request_id, resident_name, document_type, requirements_checked, payment_method, bank_provider, reference_no, total_fee, status, request_date, cedula_no, monthly_income, years_residing, purok_sitio, business_name, business_nature, business_address FROM document_requests WHERE user_id = ? ORDER BY request_id DESC";
 
         StringBuilder json = new StringBuilder("[");
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
@@ -166,8 +198,12 @@ public class BarangayServer {
             boolean first = true;
             while (rs.next()) {
                 if (!first) json.append(",");
+                BigDecimal income = rs.getBigDecimal("monthly_income");
+                int years = rs.getInt("years_residing");
+                String yearsStr = rs.wasNull() ? "" : String.valueOf(years);
+
                 json.append(String.format(
-                    "{\"id\":%d,\"name\":\"%s\",\"doc\":\"%s\",\"checkedDocs\":\"%s\",\"paymentMethod\":\"%s\",\"bankProvider\":\"%s\",\"referenceNo\":\"%s\",\"total\":\"%.2f\",\"status\":\"%s\",\"date\":\"%s\"}",
+                    "{\"id\":%d,\"name\":\"%s\",\"doc\":\"%s\",\"checkedDocs\":\"%s\",\"paymentMethod\":\"%s\",\"bankProvider\":\"%s\",\"referenceNo\":\"%s\",\"total\":\"%.2f\",\"status\":\"%s\",\"date\":\"%s\",\"cedulaNo\":\"%s\",\"monthlyIncome\":\"%s\",\"yearsResiding\":\"%s\",\"purokSitio\":\"%s\",\"businessName\":\"%s\",\"businessNature\":\"%s\",\"businessAddress\":\"%s\"}",
                     rs.getInt("request_id"),
                     escapeJson(rs.getString("resident_name")),
                     escapeJson(rs.getString("document_type")),
@@ -177,7 +213,14 @@ public class BarangayServer {
                     escapeJson(rs.getString("reference_no")),
                     rs.getDouble("total_fee"),
                     escapeJson(rs.getString("status")),
-                    rs.getString("request_date")
+                    escapeJson(rs.getString("request_date")),
+                    escapeJson(rs.getString("cedula_no")),
+                    escapeJson(income != null ? income.toPlainString() : ""),
+                    escapeJson(yearsStr),
+                    escapeJson(rs.getString("purok_sitio")),
+                    escapeJson(rs.getString("business_name")),
+                    escapeJson(rs.getString("business_nature")),
+                    escapeJson(rs.getString("business_address"))
                 ));
                 first = false;
             }
@@ -222,6 +265,30 @@ public class BarangayServer {
             e.printStackTrace();
         }
         sendJson(exchange, "{\"status\":\"success\"}");
+    }
+
+    private static String emptyToNull(String s) {
+        return (s == null || s.trim().isEmpty()) ? null : s.trim();
+    }
+
+    private static BigDecimal parseDecimalOrNull(String s) {
+        String clean = emptyToNull(s);
+        if (clean == null) return null;
+        try {
+            return new BigDecimal(clean.replace(",", ""));
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    private static Integer parseIntOrNull(String s) {
+        String clean = emptyToNull(s);
+        if (clean == null) return null;
+        try {
+            return Integer.parseInt(clean.trim());
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     private static void sendJson(HttpExchange exchange, String json) throws IOException {
